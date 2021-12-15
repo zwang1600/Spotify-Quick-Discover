@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+    <head>
+    <title>HCDE310 Final Project</title>
+    </head>
+    <body>
+        <form action="login" method="get">
+        <input type="submit" value="Log In" name="loginbtn"/> </form>
+    </body>
+
+    <script>
+        function login() {
+            fetch("https://accounts.spotify.com/authorize"), {
+                method: 'POST',
+                body: {
+                    'client_id': '8bacc00d1091212210d8563ffb82463ec17fbb94',
+                    'response_type': 'code',
+                    'redirect_uri': 'http://localhost:8888/callback',
+                }
+            }
+        }
+    </script>
+</html>

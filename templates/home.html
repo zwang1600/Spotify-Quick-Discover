@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+
+<head>
+    <style>
+        body {
+            background-color: black;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+        }
+
+        p {
+            font-family: verdana;
+            font-size: 20px;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        img {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            width: 200px;
+            height: 200px
+        }
+
+        img:hover {
+            box-shadow: 0 0 3px 3px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+    <title>HCDE310 Final Project</title>
+</head>
+
+<body>
+    <div>
+        {% for name, id in playlists %}
+        <button onclick="getTracks('{{ id }}')">{{ name }}</button>
+        {% endfor %}
+    </div>>
+    <!-- <div>
+        <button onclick="pause()">Pause</button>
+    </div>> -->
+    <div class="wrapper" id='tracks'>
+        <!-- {% for cover, uri in tracks %}
+        <div>
+            <img src={{ cover }} alt="album cover" onmouseover='play("{{ uri }}")' onmouseout=pause()>
+        </div>
+        {% endfor %} -->
+    </div>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+
+    <script>
+        window.onSpotifyWebPlaybackSDKReady = () => {
+            const token = 'BQBvYeVndPb5vCqo6jJVZ87M1Efsi-ouiUHcX0Xvi04etnTaETK-Pz9-WncKZK-_jiSOPdOmzrd9ZOTaW4hsa2ZmD3idLgVK0a6uK1kP1Wie7TujTyfRUjUyUhi-XiJedO7zP_OkziDatY22BBpcvwg0n7OxNQ';
+            player = new Spotify.Player({
+                name: 'HCDE 310 Spotify Player',
+                getOAuthToken: cb => { cb(token); },
+                volume: 0.5
+            });
+
+            player.addListener('ready', ({ device_id }) => {
+                console.log('Ready with Device ID', device_id);
+                switchToWebPlayer();
+            });
+
+            player.connect().then(success => {
+                if (success) {
+                    console.log('The Web Playback SDK successfully connected to Spotify!');
+                }
+            })
+        }
+    </script>
+
+    <script>
+        var accessToken = "{{accessToken}}"
+        var seek = "{{seek}}"
+        var device_id = null
+
+        function switchToWebPlayer() {
+            fetch('https://api.spotify.com/v1/me/player/devices', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    for (const element in data['devices']) {
+                        if (data['devices'][element]['name'] == 'HCDE 310 Spotify Player') {
+                            device_id = data['devices'][element]['id']
+
+                            fetch('https://api.spotify.com/v1/me/player', {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken,
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    'device_ids': [device_id],
+                                    'play': false,
+                                }),
+                            }).then(response => response.json()).then(data => console.log(data));
+                        }
+                    }
+                });
+        }
+
+        function getTracks(playlist_id) {
+            var tracks = []
+
+            fetch('https://api.spotify.com/v1/playlists/' + playlist_id, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => response.json()).then(data => {
+                tracks = data['tracks']['items']
+                document.getElementById("tracks").innerHTML = ""
+                for (const index in tracks) {
+                    element = document.createElement('div')
+                    element.innerHTML = "<div><img src=" +
+                        tracks[index]['track']['album']['images'][0]['url'] +
+                        " alt=\"album cover\" onmouseover='play(\"" +
+                        tracks[index]['track']['uri'] + 
+                        "\")' onmouseout=pause()></div>"
+                    document.getElementById("tracks").appendChild(element);
+                }
+            });
+        }
+
+        function play(uri = null) {
+            fetch('https://api.spotify.com/v1/me/player/play', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'uris': [uri],
+                })
+            })
+
+            // fetch('https://api.spotify.com/v1/me/player/seek', {
+            //     method: 'PUT',
+            //     headers: {
+            //         'Authorization': 'Bearer ' + accessToken,
+            //     },
+            //     query: JSON.stringify({
+            //         'position_ms': 200000,
+            //     })
+            // })
+        }
+
+        function pause() {
+            fetch('https://api.spotify.com/v1/me/player/pause', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json',
+                },
+                query: JSON.stringify({
+                    'device_id': device_id,
+                })
+            })
+        }
+
+        function getTrackInfo() {
+            fetch('https://api.spotify.com/v1/audio-analysis/id', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'application/json',
+                },
+                query: JSON.stringify({
+                    'device_id': device_id,
+                })
+            }).then(response => response.json()).then(data => console.log(data));
+        }
+    </script>
+</body>
+
+</html>
