@@ -47,18 +47,12 @@
     <!-- <div>
         <button onclick="pause()">Pause</button>
     </div>> -->
-    <div class="wrapper" id='tracks'>
-        <!-- {% for cover, uri in tracks %}
-        <div>
-            <img src={{ cover }} alt="album cover" onmouseover='play("{{ uri }}")' onmouseout=pause()>
-        </div>
-        {% endfor %} -->
-    </div>
+    <div class="wrapper" id='tracks'></div>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
     <script>
         window.onSpotifyWebPlaybackSDKReady = () => {
-            const token = 'BQBvYeVndPb5vCqo6jJVZ87M1Efsi-ouiUHcX0Xvi04etnTaETK-Pz9-WncKZK-_jiSOPdOmzrd9ZOTaW4hsa2ZmD3idLgVK0a6uK1kP1Wie7TujTyfRUjUyUhi-XiJedO7zP_OkziDatY22BBpcvwg0n7OxNQ';
+            const token = 'BQCa_Bv7aFVVo-vqKbLLRASfvr2irkmf4wds61J-rg5uT9G9Ra9qqxKHJV4gZt1cmDyV8W5spS0HYlF_r6haAX1oPp8p3kJlT1P8llLGo13_OSeiVHpK0ohk5O119Z58T4LomXTb1YIrguinbOgo1gMJMEod2Q';
             player = new Spotify.Player({
                 name: 'HCDE 310 Spotify Player',
                 getOAuthToken: cb => { cb(token); },
@@ -83,7 +77,9 @@
         var seek = "{{seek}}"
         var device_id = null
 
+        // Switch the playing device to the web player
         function switchToWebPlayer() {
+            // Get the devices first
             fetch('https://api.spotify.com/v1/me/player/devices', {
                 method: 'GET',
                 headers: {
@@ -92,10 +88,12 @@
                 },
             }).then(response => response.json())
                 .then(data => {
+                    // After getting the available devices, try to the find the web player
                     for (const element in data['devices']) {
                         if (data['devices'][element]['name'] == 'HCDE 310 Spotify Player') {
                             device_id = data['devices'][element]['id']
 
+                            // If the web player if found, switch to it
                             fetch('https://api.spotify.com/v1/me/player', {
                                 method: 'PUT',
                                 headers: {
@@ -112,9 +110,11 @@
                 });
         }
 
+        // Build the "main section" of the page by getting the tracks from a given playlist
         function getTracks(playlist_id) {
             var tracks = []
 
+            // Get the playlist using the parameter "playlist_id"
             fetch('https://api.spotify.com/v1/playlists/' + playlist_id, {
                 method: 'GET',
                 headers: {
@@ -122,6 +122,8 @@
                     'Content-Type': 'application/json',
                 },
             }).then(response => response.json()).then(data => {
+                // Get the tracks from the playlist then build html elements
+                // base on the information retrieved
                 tracks = data['tracks']['items']
                 document.getElementById("tracks").innerHTML = ""
                 for (const index in tracks) {
@@ -129,13 +131,14 @@
                     element.innerHTML = "<div><img src=" +
                         tracks[index]['track']['album']['images'][0]['url'] +
                         " alt=\"album cover\" onmouseover='play(\"" +
-                        tracks[index]['track']['uri'] + 
+                        tracks[index]['track']['uri'] +
                         "\")' onmouseout=pause()></div>"
                     document.getElementById("tracks").appendChild(element);
                 }
             });
         }
 
+        // Play a track (uri should be the track uri) on the current device
         function play(uri = null) {
             fetch('https://api.spotify.com/v1/me/player/play', {
                 method: 'PUT',
@@ -148,17 +151,19 @@
                 })
             })
 
-            // fetch('https://api.spotify.com/v1/me/player/seek', {
-            //     method: 'PUT',
-            //     headers: {
-            //         'Authorization': 'Bearer ' + accessToken,
-            //     },
-            //     query: JSON.stringify({
-            //         'position_ms': 200000,
-            //     })
-            // })
+            // Seek to the chorus - NOT WORKING CURRENTLY
+            fetch('https://api.spotify.com/v1/me/player/seek', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                },
+                query: JSON.stringify({
+                    'position_ms': 200000,
+                })
+            })
         }
 
+        // Pause the current device
         function pause() {
             fetch('https://api.spotify.com/v1/me/player/pause', {
                 method: 'PUT',
@@ -172,18 +177,19 @@
             })
         }
 
-        function getTrackInfo() {
-            fetch('https://api.spotify.com/v1/audio-analysis/id', {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + accessToken,
-                    'Content-Type': 'application/json',
-                },
-                query: JSON.stringify({
-                    'device_id': device_id,
-                })
-            }).then(response => response.json()).then(data => console.log(data));
-        }
+        // Get track info
+        // function getTrackInfo() {
+        //     fetch('https://api.spotify.com/v1/audio-analysis/id', {
+        //         method: 'GET',
+        //         headers: {
+        //             'Authorization': 'Bearer ' + accessToken,
+        //             'Content-Type': 'application/json',
+        //         },
+        //         query: JSON.stringify({
+        //             'device_id': device_id,
+        //         })
+        //     }).then(response => response.json()).then(data => console.log(data));
+        // }
     </script>
 </body>
 
