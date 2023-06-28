@@ -35,7 +35,7 @@
             box-shadow: 0 0 3px 3px rgba(255, 255, 255, 0.5);
         }
     </style>
-    <title>HCDE310 Final Project</title>
+    <title>Spotify-Quick-Discover</title>
 </head>
 
 <body>
@@ -52,9 +52,12 @@
 
     <script>
         window.onSpotifyWebPlaybackSDKReady = () => {
-            const token = 'BQCa_Bv7aFVVo-vqKbLLRASfvr2irkmf4wds61J-rg5uT9G9Ra9qqxKHJV4gZt1cmDyV8W5spS0HYlF_r6haAX1oPp8p3kJlT1P8llLGo13_OSeiVHpK0ohk5O119Z58T4LomXTb1YIrguinbOgo1gMJMEod2Q';
+            // Get access token from this website:
+            // https://developer.spotify.com/documentation/web-playback-sdk/quick-start/#
+            // Access token expires in 1 hour
+            const token = 'BQBCc_7SsPbbugWcse-AbIp1J25s9RVAYB6nShK0js6wxdLOPsB8PJSAF5rpKpwGkgDkSuMEK-8ubYCQsSbAFDUKmi8VUPcRH_JO3hDLtL0vVMVC3MDI5E6XWXBbbV0rZfIjNmNy3rJmsPSoPFft0LGj6o2B-LCYMhb6Ubrg21EEkYuD3-LuzinOVcz3ivOeR2c';
             player = new Spotify.Player({
-                name: 'HCDE 310 Spotify Player',
+                name: 'Spotify-Quick-Discover',
                 getOAuthToken: cb => { cb(token); },
                 volume: 0.5
             });
@@ -90,7 +93,7 @@
                 .then(data => {
                     // After getting the available devices, try to the find the web player
                     for (const element in data['devices']) {
-                        if (data['devices'][element]['name'] == 'HCDE 310 Spotify Player') {
+                        if (data['devices'][element]['name'] == 'Spotify-Quick-Discover') {
                             device_id = data['devices'][element]['id']
 
                             // If the web player if found, switch to it
@@ -176,20 +179,6 @@
                 })
             })
         }
-
-        // Get track info
-        // function getTrackInfo() {
-        //     fetch('https://api.spotify.com/v1/audio-analysis/id', {
-        //         method: 'GET',
-        //         headers: {
-        //             'Authorization': 'Bearer ' + accessToken,
-        //             'Content-Type': 'application/json',
-        //         },
-        //         query: JSON.stringify({
-        //             'device_id': device_id,
-        //         })
-        //     }).then(response => response.json()).then(data => console.log(data));
-        // }
     </script>
 </body>
 

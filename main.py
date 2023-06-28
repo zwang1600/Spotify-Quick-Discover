@@ -11,11 +11,12 @@ CLIENT_ID = "cb9c0957660d4db4bec306b025a70d56"
 CLIENT_SECRET = "61b4f8b477dc476a86400bb2b9a0d211"
 REDIRECT_URL = 'http://localhost:5555/callback'
 SCOPE = '''
-user-read-currently-playing 
+ user-read-currently-playing 
 user-read-playback-state 
 user-modify-playback-state 
 user-follow-modify 
-user-library-read'''
+user-library-read
+'''
 
 # App setup
 app = Flask(__name__)
@@ -101,4 +102,4 @@ def logout():
 if __name__ == "__main__":
     global sp
     sp = None
-    app.run(host="localhost", port=1111, debug=True)
+    app.run(host="localhost", port=8888, debug=True)
